@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+const cities = [];//make the empty array for json
+fetch(endpoint).then(blob   => blob.json()).then(data => cities.push(...data));
+//fetch returns not the data, it returns a promise. 
+//incoming blob doesn't know what it contains. 
+//json() is a function found in the blob?
+// the ...data is what is called a spread. pushing the data into an array will have an array inside an array. 
+
+//function needed to lookup when user types something. 
+function findMatch(toMatch, cities){
+    return cities.filter(place => { 
+        //fiture out figure out the match)
+        const regex = new RegExp(toMatch, 'gi');
+        return place.city.match(regex) || place.state.match(regex);
+    });
+    
+}
+
+function displayMatches(){
+    const matchArray = findMatch(this.value, cities);
+    console.log(matchArray);
+    const html = matchArray.map(place => { 
+        const regex = new RegExp(this.value, 'gi');//find whatever it matches with the actual name/city
+        const cityName = place.city.replace(regex, "<span class = \|hl\">${this.value}</span>");
+        const stateName = place.state.replace(regex, "<span class = \|hl\">${this.value}</span>");
+            return `
+            <li> 
+                <span class="name">${cityName}, ${place.state}</span>
+                <span class="population">${place.population}</span>
+
+            </li>
+        `; });
+        suggestions.innerHTML = html;
+}
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.search');
+
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+</script>
+  </body>
+</html>
